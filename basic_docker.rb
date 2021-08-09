@@ -1,10 +1,14 @@
+ruby_ver_def = '3.0.0'
+pg_ver_def = '13'
+redis_ver_def = '6'
+
 ruby_ver = ask("Ruby version ?")
 pg_ver = ask("PostgreSQL version?")
 redis_ver = ask("Redis version?")
 
-ruby_ver = '3.0.0' unless ruby_ver.present?
-pg_ver = '13' unless pg_ver.present?
-redis_ver = '6' unless redis_ver.present?
+ruby_ver = ruby_ver_def unless ruby_ver.present?
+pg_ver = pg_ver_def unless pg_ver.present?
+redis_ver = redis_ver_def unless redis_ver.present?
 
 
 file '.dockerignore', <<-CODE
@@ -117,6 +121,44 @@ services:
 volumes:
   #{app_name}-db:
 CODE
+
+file 'bin/serve', <<-CODE
+#! /bin/bash
+
+docker-compose run --service-ports dev
+
+docker-compose down
+CODE
+
+file 'bin/test', <<-CODE
+#! /bin/bash
+
+docker-compose run --service-ports test
+
+docker-compose down
+CODE
+
+file 'bin/rebuild', <<-CODE
+#! /bin/bash
+
+docker-compose up --build dev test
+
+docker-compose down
+CODE
+
+file 'bin/console', <<-CODE
+#! /bin/bash
+
+docker-compose run --service-ports dev rails console
+
+docker-compose down
+CODE
+
+inside('bin') do
+  %w(serve test rebuild console).each do |file|
+    run "sudo chmod +x #{file}"
+  end
+end
 
 git add: "."
 git commit: %Q{ -m 'Docker setup' }
