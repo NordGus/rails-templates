@@ -5,7 +5,10 @@ gem_group :development, :test do
   gem 'shoulda-matchers'
 end
 
+run 'bundle install'
+
 initializer 'generators.rb', <<-CODE
+
 Rails.application.config.generators do |g|
   g.test_framework :rspec,
     fixtures: true,
@@ -16,42 +19,46 @@ Rails.application.config.generators do |g|
     request_specs: true
   g.fixture_replacement :factory_bot, suffix_factory: 'factory'
 end
+
 CODE
 
-after_bundle do
-  generate 'rspec:install'
+generate 'rspec:install'
 
-  inject_into_file 'spec/rails_helper.rb', before: 'RSpec.configure' do
-    <<-CODE
+inject_into_file 'spec/rails_helper.rb', before: 'RSpec.configure' do
+<<-CODE
+
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
     with.test_framework :rspec
     with.library :rails
   end
 end
-    CODE
+
+CODE
+end
+
+inject_into_file 'spec/rails_helper.rb', after: 'RSpec.configure do |config|' do
+<<-CODE
+
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :truncation
+    DatabaseCleaner.clean_with(:truncation)
   end
-
-  inject_into_file 'spec/rails_helper.rb', after: 'RSpec.configure do |config|' do
-    <<-CODE
-config.before(:suite) do
-  DatabaseCleaner.strategy = :truncation
-  DatabaseCleaner.clean_with(:truncation)
-end
-
-config.before do
-  DatabaseCleaner.strategy = :transaction
-  DatabaseCleaner.start
-end
-
-config.append_after do
-  DatabaseCleaner.clean
-end
-
-config.include FactoryBot::Syntax::Methods
-    CODE
+  
+  config.before do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.start
   end
+  
+  config.append_after do
+    DatabaseCleaner.clean
+  end
+  
+  config.include FactoryBot::Syntax::Methods
 
-  git add: "."
-  git commit: %Q{ -m 'RSpec setup' }
+CODE
 end
+
+git add: "."
+git commit: %Q{ -m 'RSpec setup' }
