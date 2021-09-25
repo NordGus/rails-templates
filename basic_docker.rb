@@ -6,6 +6,11 @@ abort 'Ruby version is required' unless ruby_ver.present?
 abort 'PostgreSQL version is required' unless pg_ver.present?
 abort 'Redis version is required' unless redis_ver.present?
 
+gem_group :development, :test do
+  gem 'debase'
+  gem 'ruby-debug-ide'
+end
+
 file '.dockerignore', <<-CODE
 .git
 .gitignore
