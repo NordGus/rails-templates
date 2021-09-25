@@ -75,9 +75,8 @@ file 'docker-compose.yml', <<-CODE
 version: "3.9"
 services:
   dev:
-    build: 
-      context: .
-      name: #{app_name}-app
+    build: .
+    image: #{app_name}-app
     command: tail -f /dev/null
     volumes:
       - .:/var/app
