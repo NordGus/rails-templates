@@ -1,5 +1,8 @@
 gem_group :development, :test do
   gem 'rspec-rails'
+  gem 'capybara'
+  gem 'selenium-webdriver'
+  gem 'chromedriver-helper'
   gem 'factory_bot_rails'
   gem 'database_cleaner-active_record'
   gem 'shoulda-matchers'
@@ -16,7 +19,7 @@ Rails.application.config.generators do |g|
     helper_specs: false,
     routing_specs: false,
     controller_specs: false,
-    request_specs: true
+    feature_specs: true
   g.fixture_replacement :factory_bot, suffix_factory: 'factory'
 end
 
@@ -59,6 +62,3 @@ inject_into_file 'spec/rails_helper.rb', after: 'RSpec.configure do |config|' do
 
 CODE
 end
-
-git add: "."
-git commit: %Q{ -m 'RSpec setup' }

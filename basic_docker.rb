@@ -43,11 +43,15 @@ RUN apt-get update && \
     npm install --global yarn
 
 WORKDIR /var/app
+
 COPY Gemfile /var/app/Gemfile
 COPY Gemfile.lock /var/app/Gemfile.lock
+COPY package.json /var/app/package.json
+COPY yarn.lock /var/app/yarn.lock
 RUN bundle install
-COPY . /var/app
 RUN yarn install
+
+COPY . /var/app
 
 COPY entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
@@ -103,6 +107,3 @@ services:
 volumes:
   #{app_name}-db:
 CODE
-
-git add: "."
-git commit: %Q{ -m 'Docker setup' }
